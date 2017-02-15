@@ -14,44 +14,60 @@ namespace Ex2._3
 
             int i = Convert.ToInt32(Console.ReadLine()); // read number
 
-            switch (i % 10) // Print the english name of the last digit 
+            Console.WriteLine($"The last digit of {i} is {LastDigitAsAStringUsingEnum(i)}");
+
+            Console.Read(); // Wait for the user to end the program
+        }
+
+        enum TextDigits { zero, one, two, three, four, five, six, seven, eight, nine};
+
+        static string LastDigitAsAStringUsingEnum(int num)
+        {
+            return ((TextDigits)(num%10)).ToString();
+        }
+
+        static string LastDigitAsAString(int num)
+        {
+            string s;
+
+            switch (num % 10) // Print the english name of the last digit 
             {
                 case 0:
-                    Console.WriteLine("The last digit is zero");
+                    s = "zero";
                     break;
                 case 1:
-                    Console.WriteLine("The last digit is one");
+                    s = "one";
                     break;
                 case 2:
-                    Console.WriteLine("The last digit is two");
+                    s = "two";
                     break;
                 case 3:
-                    Console.WriteLine("The last digit is three");
+                    s = "three";
                     break;
                 case 4:
-                    Console.WriteLine("The last digit is four");
+                    s = "four";
                     break;
                 case 5:
-                    Console.WriteLine("The last digit is five");
+                    s = "five";
                     break;
                 case 6:
-                    Console.WriteLine("The last digit is six");
+                    s = "six";
                     break;
                 case 7:
-                    Console.WriteLine("The last digit is seven");
+                    s = "seven";
                     break;
                 case 8:
-                    Console.WriteLine("The last digit is eight");
+                    s = "eight";
                     break;
                 case 9:
-                    Console.WriteLine("The last digit is nine");
+                    s = "nine";
                     break;
                 default:
-                    Console.WriteLine("Error"); // Something when wrong if the digit was not amoungst 0, 1, 2, 3, 4, 5, 6, 7, 8 and 9
+                    s = null; // Something when wrong if the digit was not amoungst 0, 1, 2, 3, 4, 5, 6, 7, 8 and 9
                     break;
             }
 
-            Console.Read(); // Wait for the user to end the program
+            return s;
         }
     }
 }
