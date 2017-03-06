@@ -10,7 +10,7 @@ namespace Ex4._1
     {
         static void Main(string[] args)
         {
-            Console.WriteLine($"{GetMax(1)}");
+            Console.WriteLine($"{GetMax(1,4,5,6)}");
             Console.Read();
         }
 
