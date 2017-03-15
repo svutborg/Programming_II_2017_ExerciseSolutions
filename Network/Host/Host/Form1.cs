@@ -25,6 +25,7 @@ namespace Host
             InitializeComponent();
         }
 
+
         private void Form1_Load(object sender, EventArgs e)
         {
             interfaces = NetworkInterface.GetAllNetworkInterfaces();
@@ -109,54 +110,63 @@ namespace Host
             this.Invoke((MethodInvoker)delegate () { Log(P.ToString() + " connected"); });
             this.Invoke((MethodInvoker)delegate () { SocketCountLabel.Text = (int.Parse(SocketCountLabel.Text) + 1).ToString(); });
 
-        
-            while (S.Connected)
+            
+            while (IsConnected(S))
             {
                 try
                 {
+
                     byte[] buf = new byte[S.ReceiveBufferSize];
                     S.Receive(buf);
                     string message = Encoding.UTF8.GetString(buf);
                     message = message.Split('\0')[0];
-                    bool command = false;
-
-                    for (int i = 0; i < Enum.GetNames(typeof(CommandSet)).Length; i++)
+                    if (message != "")
                     {
-                        if (message.Contains(((CommandSet)i).ToString()))
+                        bool command = false;
+
+                        for (int i = 0; i < Enum.GetNames(typeof(CommandSet)).Length; i++)
                         {
-                            command = true;
-                            switch((CommandSet)i)
+                            if (message.Contains(((CommandSet)i).ToString()))
                             {
-                                case CommandSet.SetUsername:
-                                    string[] strings = message.Split('=');
-                                    for (int j = 0; j < strings.Length; j++)
-                                    {
-                                        if(strings[j] == CommandSet.SetUsername.ToString())
+                                command = true;
+                                switch ((CommandSet)i)
+                                {
+                                    case CommandSet.SetUsername:
+                                        string[] strings = message.Split('=');
+                                        for (int j = 0; j < strings.Length; j++)
                                         {
-                                            if (strings.Length > j)
-                                                P.Name = strings[j + 1];
+                                            if (strings[j] == CommandSet.SetUsername.ToString())
+                                            {
+                                                if (strings.Length > j)
+                                                    P.Name = strings[j + 1];
+                                            }
                                         }
-                                    }
-                                    break;
-                                case CommandSet.Disconnect:
-                                    this.Invoke((MethodInvoker)delegate () { Log($"{P.ToString()} disconnected"); });
-                                    S.Disconnect(false);
-                                    break;
-                                default:
-                                    break;
+                                        break;
+                                    case CommandSet.Disconnect:
+                                        this.Invoke((MethodInvoker)delegate () { Log($"{P.ToString()} disconnected"); });
+                                        S.Disconnect(false);
+                                        break;
+                                    default:
+                                        break;
+                                }
                             }
                         }
-                    }
 
-                    if (!command)
-                    {
-                        this.Invoke((MethodInvoker)delegate () { RecieveListBox.Items.Add($"{P.ToString()}: {message}"); });
+                        if (!command)
+                        {
+                            this.Invoke((MethodInvoker)delegate () { RecieveListBox.Items.Add($"{P.ToString()}: {message}"); });
+                        }
                     }
                 }
                 catch (SocketException se)
                 {
                     this.Invoke((MethodInvoker)delegate () { Log("Socket from " + P.ToString() + " was forceabely closed: " + se.Message); });
                     S.Disconnect(false);
+                    break;
+                }
+                if(!IsConnected(S))
+                {
+                    this.Invoke((MethodInvoker)delegate () { Log(P.ToString() + " disconnected"); });
                     break;
                 }
             }
@@ -169,6 +179,17 @@ namespace Host
             hosting = false;
             if(T != null)
                 T.Join();
+        }
+        private bool IsConnected(Socket socket)
+        {
+            try
+            {
+                return !(socket.Poll(1, SelectMode.SelectRead) && socket.Available == 0);
+            }
+            catch (SocketException)
+            {
+                return false;
+            }
         }
     }
 }
